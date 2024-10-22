@@ -1,0 +1,77 @@
+<div class="welcome_section">
+    <h1>Welcome, {{ user.username }}!</h1>
+</div>
+
+{% if code_expired_message %}
+<div class="alert alert-warning">
+    {{ code_expired_message }}
+</div>
+{% endif %}
+
+<form id="referral-form" method="POST">
+    {% csrf_token %}
+    <label for="referral_code">Your Referral Code:</label>
+    <input type="text" id="referral_code" name="referral_code" value="{{ referral_code }}">
+    <input type="submit" value="Save">
+</form>
+
+<button id="delete-referral-code">Delete Referral Code</button>
+
+<div class="logout_button">
+    <form action="{% url 'accounts:logout' %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+    </form>
+</div>
+
+<div id="referral-feedback"></div>
+
+<script>
+    document.getElementById('referral-form').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const referralCode = document.getElementById('referral_code').value;
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        if (referralCode === '') {
+            document.getElementById('referral-feedback').innerText = 'Referral code cannot be empty.';
+            return;
+        }
+
+        fetch("{% url 'accounts:home' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({'referral_code': referralCode})
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    document.getElementById('referral-feedback').innerText = 'Referral code updated successfully!';
+                } else if (data.error) {
+                    document.getElementById('referral-feedback').innerText = data.error;
+                }
+            });
+    });
+
+    document.getElementById('delete-referral-code').addEventListener('click', function () {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        fetch("{% url 'accounts:home' %}", {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    document.getElementById('referral-feedback').innerText = data.message;
+                    document.getElementById('referral_code').value = '';
+                }
+            });
+    });
+</script>

@@ -1,0 +1,52 @@
+<div class="login_section">
+    <h1>Login</h1>
+
+    <div id="error-messages" style="color: red;"></div>
+
+    <form id="login-form" method="POST">
+        {% csrf_token %}
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br><br>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br><br>
+
+        <input type="submit" value="Login">
+    </form>
+
+    <a href="{% url 'accounts:register' %}">Register</a>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#login-form').on('submit', function (event) {
+            event.preventDefault();
+
+            $('#error-messages').html('');
+
+            const formData = {
+                email: $('#email').val(),
+                password: $('#password').val(),
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            };
+
+            $.ajax({
+                url: '{% url "accounts:login" %}',
+                type: 'POST',
+                data: formData,
+                success: function (response) {
+                    window.location.href = "{% url 'accounts:home' %}";
+                },
+                error: function (xhr) {
+                    const errors = JSON.parse(xhr.responseText);
+                    if (errors.detail) {
+                        $('#error-messages').html(errors.detail);
+                    }
+                }
+            });
+        });
+    });
+</script>
+
+
