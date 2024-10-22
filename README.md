@@ -17,7 +17,7 @@ urls:
 только для админа (test@mail.ru):
   - инфа по всем пользователям: http://localhost/users/
   - detail по одному: http://localhost/users/?email=SEARCHED_EMAIL (ex: http://localhost/users/?email=test@mail.ru)
-  - посмотреть рефералов пользователя: http://localhost/users/<int:pk> (ex: http://localhost/users/1)
+  - посмотреть рефералов пользователя: http://localhost/users/<<int:pk>> (ex: http://localhost/users/1)
     
 
 PS: 
